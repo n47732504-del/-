@@ -1223,14 +1223,25 @@
             document.getElementById('topicEditorView').style.display = 'block';
         }
         function closeTopicPage() { document.getElementById('topicEditorView').style.display = 'none'; }
-        function saveTopicData() {
+        
+        async function saveTopicData() {
             const member = teamData.find(m => m.id === currentMemberId);
             if (!member) return;
-            member.role = document.getElementById('editMemberRole').value;
-            member.article.title = document.getElementById('editArticleTitle').value;
-            member.article.text = document.getElementById('editArticleText').value;
+
+            const newRole = document.getElementById('editMemberRole').value;
+            const newTitle = document.getElementById('editArticleTitle').value;
+            const newText = document.getElementById('editArticleText').value;
+
+            member.role = newRole;
+            member.article.title = newTitle;
+            member.article.text = newText;
+
             localStorage.setItem('codecraft_team_data', JSON.stringify(teamData));
-            showProfile(currentMemberId); closeTopicPage(); showToast("تم الحفظ!");
+            showProfile(currentMemberId);
+            closeTopicPage();
+            showToast("جاري الحفظ والمزامنة مع السحابة...");
+
+            await saveArticleToSupabase(`${member.name} | ${newTitle}`, newText);
         }
 
         window.onload = function() {
@@ -1239,8 +1250,9 @@
             updateSupportUI();
             renderCustomButtons();
             startAutoSpin();
+            loadArticlesFromSupabase();
         };
-</script>
+    </script>
     <!-- مكتبة وسيرفر وسكربتات Supabase السحابي -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -1257,9 +1269,10 @@
             
             if (error) {
                 console.error('خطأ في حفظ البيانات:', error);
+                showToast("حدث خطأ أثناء الرفع للسحابة!");
             } else {
                 console.log('تم الحفظ بنجاح وتحديث السحابة!', data);
-                loadArticlesFromSupabase();
+                showToast("تم الحفظ والمزامنة مع السحابة بنجاح للجميع! 🚀");
             }
         }
 
@@ -1268,18 +1281,32 @@
             const { data, error } = await window.supabaseClient
                 .from('projects')
                 .select('*')
-                .order('id', { ascending: false });
+                .order('id', { ascending: true });
             
             if (error) {
                 console.error('خطأ في جلب البيانات:', error);
-            } else {
-                console.log('البيانات المُسترجعة من السحابة:', data);
+                return;
+            }
+
+            if (data && data.length > 0) {
+                data.forEach(row => {
+                    if (row.title && row.title.includes(' | ')) {
+                        const parts = row.title.split(' | ');
+                        const memberName = parts[0].trim();
+                        const articleTitle = parts.slice(1).join(' | ').trim();
+
+                        const member = teamData.find(m => m.name === memberName);
+                        if (member) {
+                            member.article.title = articleTitle;
+                            member.article.text = row.content;
+                        }
+                    }
+                });
+                localStorage.setItem('codecraft_team_data', JSON.stringify(teamData));
+                if (currentMemberId) showProfile(currentMemberId);
+                console.log('تم تحديث جميع البروفايلات بأحدث بيانات السحابة!');
             }
         }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            loadArticlesFromSupabase();
-        });
     </script>
 </body>
 </html>
