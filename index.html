@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- جدار الحماية الداخلي (CSP) لحماية الموقع من الثغرات والحقن الخبيث -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://images.unsplash.com https://api.dicebear.com; script-src 'self' 'unsafe-inline';">
+    <title>منصة المبرمجين - CodeCraft 3D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #131c2e;
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-glow: rgba(0, 242, 254, 0.4);
+            --custom-bg-image: none;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--custom-bg-image), 
+                radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* شريط المحرر */
+        .ide-bar {
+            background: #080c14;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ide-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-green { background: #10b981; }
+
+        .ide-title {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .admin-login-trigger {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.3s;
+        }
+
+        .admin-login-trigger:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .admin-login-trigger.logged-in {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            flex: 1;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .code-tag {
+            font-family: 'Fira Code', monospace;
+            color: var(--primary);
+            font-size: 1rem;
+            background: rgba(0, 242, 254, 0.1);
+            padding: 6px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 15px;
+            border: 1px solid rgba(0, 242, 254, 0.2);
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-main), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 25px;
+            line-height: 1.6;
+        }
+
+        .controls-toolbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(19, 28, 46, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 20px 12px 45px;
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+            text-align: right;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .admin-add-btn {
+            display: none;
+            background: linear-gradient(135deg, var(--accent), #059669);
+            color: #fff;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.95rem;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+            transition: 0.3s;
+        }
+
+        .admin-add-btn.authorized { display: inline-flex; }
+        .admin-add-btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(16, 185, 129, 0.6); }
+
+        /* عرض 3D */
+        .scene-3d {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            perspective: 1400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            overflow: visible;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .scene-3d:active { cursor: grabbing; }
+
+        .carousel-3d {
+            width: 210px;
+            height: 260px;
+            position: absolute;
+            transform-style: preserve-3d;
+        }
+
+        .team-card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 210px;
+            height: 260px;
+            background: rgba(19, 28, 46, 0.95);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(0, 242, 254, 0.25);
+            border-radius: 20px;
+            padding: 22px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            backface-visibility: visible;
+        }
+
+        .team-card:hover { border-color: var(--primary); box-shadow: 0 0 35px var(--border-glow); }
+
+        .avatar-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 12px;
+            border-radius: 50%;
+            padding: 3px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.25);
+            pointer-events: none;
+        }
+
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #1a233a;
+            display: block;
+            pointer-events: none;
+        }
+
+        .team-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; color: var(--text-main); pointer-events: none; }
+        .team-card span { font-size: 0.8rem; color: var(--primary); font-family: 'Fira Code', monospace; pointer-events: none; }
+
+        .floor-glow {
+            position: absolute;
+            bottom: 10px;
+            width: 380px;
+            height: 380px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 242, 254, 0.15) 0%, transparent 70%);
+            transform: rotateX(80deg);
+            pointer-events: none;
+        }
+
+        /* صفحة الملف الشخصي */
+        .profile-view {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--primary);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .top-actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover { background: var(--primary); color: var(--bg-color); }
+
+        .admin-action-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+        .admin-control-btn {
+            display: none;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #0b0f19;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.9rem;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.35);
+            transition: 0.2s;
+        }
+
+        .admin-delete-btn { background: linear-gradient(135deg, var(--danger), #dc2626) !important; color: #fff !important; }
+        .admin-control-btn.authorized { display: inline-flex; }
+        .admin-control-btn:hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.1); }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            object-fit: cover;
+            box-shadow: 0 0 25px var(--border-glow);
+        }
+
+        .profile-info h2 { font-size: 2.2rem; margin-bottom: 8px; }
+        .profile-info p.role { color: var(--primary); font-family: 'Fira Code', monospace; font-size: 1.1rem; margin-bottom: 15px; }
+
+        .social-links { display: flex; gap: 12px; }
+        .social-btn {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-main); display: flex; align-items: center; justify-content: center;
+            text-decoration: none; transition: 0.3s;
+        }
+        .social-btn:hover { background: var(--primary); color: var(--bg-color); border-color: var(--primary); transform: translateY(-3px); }
+
+        .profile-content-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 40px; }
+        @media (max-width: 768px) { .profile-content-grid { grid-template-columns: 1fr; } }
+
+        .skills-box, .articles-box {
+            background: rgba(8, 12, 20, 0.5);
+            border-radius: 16px; padding: 25px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .section-title { font-size: 1.2rem; margin-bottom: 20px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .skill-item { margin-bottom: 15px; }
+        .skill-info { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px; }
+        .skill-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+        .skill-progress { height: 100%; border-radius: 4px; }
+
+        .article-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 20px; margin-bottom: 15px; }
+        .article-card h4 { margin-bottom: 8px; font-size: 1.1rem; }
+        .article-card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; }
+
+        /* اختيار ألوان البروفايل الفردي */
+        .profile-color-picker-box {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .color-preset-btn {
+            width: 30px; height: 30px; border-radius: 50%;
+            border: 2px solid #fff; cursor: pointer; transition: 0.2s;
+        }
+        .color-preset-btn:hover { transform: scale(1.15); }
+
+        /* شريط التذييل */
+        .site-footer {
+            background: #080c14; border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 20px; text-align: center; margin-top: auto;
+            display: flex; flex-direction: column; align-items: center; gap: 15px;
+        }
+        .footer-row { display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .site-footer p { color: var(--text-muted); font-size: 0.9rem; }
+
+        .support-btn {
+            background: rgba(37, 211, 102, 0.15); border: 1px solid #25d366; color: #25d366;
+            padding: 8px 18px; border-radius: 10px; cursor: pointer; font-weight: 700;
+            font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; text-decoration: none;
+        }
+        .support-btn:hover { background: #25d366; color: #fff; box-shadow: 0 0 20px rgba(37, 211, 102, 0.4); transform: translateY(-2px); }
+
+        .custom-buttons-container { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .custom-dynamic-btn {
+            background: rgba(0, 242, 254, 0.12); border: 1px solid var(--primary); color: var(--primary);
+            padding: 8px 16px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.9rem;
+            display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; text-decoration: none; position: relative;
+        }
+        .custom-dynamic-btn:hover { background: var(--primary); color: #0b0f19; transform: translateY(-2px); }
+
+        .delete-custom-btn {
+            position: absolute; top: -8px; left: -8px; background: var(--danger); color: #fff;
+            width: 20px; height: 20px; border-radius: 50%; font-size: 0.7rem; display: none;
+            align-items: center; justify-content: center; cursor: pointer; border: none;
+        }
+        .admin-mode-active .delete-custom-btn { display: flex; }
+
+        .admin-edit-support-btn, .admin-add-custom-btn, .admin-reset-btn, .admin-theme-btn {
+            display: none; background: rgba(0, 242, 254, 0.15); border: 1px solid var(--primary); color: var(--primary);
+            padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.85rem;
+            align-items: center; gap: 6px; transition: 0.3s;
+        }
+        .admin-add-custom-btn { background: rgba(16, 185, 129, 0.15); border-color: var(--accent); color: var(--accent); }
+        .admin-reset-btn { background: rgba(239, 68, 68, 0.15); border-color: var(--danger); color: var(--danger); }
+        .admin-theme-btn { background: rgba(245, 158, 11, 0.15); border-color: #f59e0b; color: #f59e0b; }
+
+        .admin-edit-support-btn.authorized, .admin-add-custom-btn.authorized, .admin-reset-btn.authorized, .admin-theme-btn.authorized { display: inline-flex; }
+        .admin-edit-support-btn:hover { background: var(--primary); color: #0b0f19; }
+        .admin-add-custom-btn:hover { background: var(--accent); color: #fff; }
+        .admin-reset-btn:hover { background: var(--danger); color: #fff; }
+        .admin-theme-btn:hover { background: #f59e0b; color: #fff; }
+
+        /* النوافذ المنبثقة Modal */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(8, 12, 20, 0.85);
+            backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; padding: 20px;
+            animation: fadeIn 0.25s ease;
+        }
+        .modal-box {
+            background: var(--card-bg); border: 1px solid var(--primary); border-radius: 20px;
+            padding: 30px; width: 100%; max-width: 450px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            text-align: center; max-height: 90vh; overflow-y: auto;
+        }
+        .modal-icon {
+            width: 60px; height: 60px; border-radius: 50%; background: rgba(0, 242, 254, 0.1);
+            color: var(--primary); display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin: 0 auto 15px; border: 1px solid var(--primary);
+        }
+        .modal-box h3 { font-size: 1.4rem; margin-bottom: 8px; }
+        .modal-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
+
+        .modal-input {
+            width: 100%; background: rgba(8, 12, 20, 0.8); border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px; padding: 12px 15px; color: #fff; font-size: 1.05rem; outline: none; margin-bottom: 12px; text-align: right;
+        }
+        .modal-input:focus { border-color: var(--primary); }
+        .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+        .modal-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; font-size: 0.95rem; transition: 0.2s; }
+        .modal-btn-confirm { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #0b0f19; }
+        .modal-btn-danger { background: var(--danger); color: #fff; }
+        .modal-btn-cancel { background: rgba(255, 255, 255, 0.08); color: var(--text-main); }
+
+        .support-card {
+            background: rgba(8, 12, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; text-align: right;
+        }
+        .support-avatar { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #25d366; object-fit: cover; }
+        .support-info h4 { font-size: 1.1rem; margin-bottom: 4px; }
+        .support-info p { color: #25d366; font-size: 0.85rem; margin: 0; font-family: 'Fira Code', monospace; }
+
+        .whatsapp-direct-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+            background: #25d366; color: #fff; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 1rem; transition: 0.3s;
+        }
+        .whatsapp-direct-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+        .toast-notification {
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #080c14; border: 1px solid var(--accent); color: var(--text-main); padding: 12px 24px;
+            border-radius: 12px; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 11000; opacity: 0; transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .toast-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        .topic-editor-view {
+            display: none; position: fixed; inset: 0; background-color: var(--bg-color); z-index: 9999; padding: 30px 20px; overflow-y: auto; animation: fadeIn 0.3s ease;
+        }
+        .editor-container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        .editor-top-bar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        .save-topic-btn { background: var(--accent); color: #0b0f19; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; text-align: right; }
+        .form-group label { color: var(--primary); font-weight: 600; }
+        .topic-title-input { width: 100%; background: rgba(19, 28, 46, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: #ffffff; font-size: 1.2rem; font-weight: 700; padding: 12px 15px; outline: none; text-align: right; }
+        .topic-textarea { width: 100%; height: 150px; background: rgba(19, 28, 46, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: var(--text-main); font-size: 1.05rem; line-height: 1.6; padding: 15px; resize: vertical; outline: none; text-align: right; }
+    </style>
+</head>
+<body>
+
+    <!-- نافذة الترحيب الرئيسية -->
+    <div id="welcomePopupModal" class="modal-overlay" style="display: flex;">
+        <div class="modal-box" style="max-width: 500px;">
+            <div class="modal-icon"><i class="fa-solid fa-code"></i></div>
+            <h3 style="color: var(--primary); font-size: 1.8rem; margin-bottom: 12px;">أهلاً بك في CodeCraft 3D</h3>
+            <p style="font-size: 1.05rem; line-height: 1.7; margin-bottom: 25px;">
+                منصة هندسية تقنية متكاملة لتجميع رواد ومطوري البرمجيات، استعراض الملفات الشخصية ثلاثية الأبعاد، المهارات البرمجية، والمقالات التقنية المتقدمة.
+            </p>
+            <button type="button" class="modal-btn modal-btn-confirm" onclick="closeWelcomePopup()" style="padding: 12px; font-size: 1.1rem;">
+                <i class="fa-solid fa-arrow-left"></i> ابدأ تصفح المنصة
+            </button>
+        </div>
+    </div>
+
+    <!-- شريط المحرر العلوي -->
+    <div class="ide-bar">
+        <div class="ide-dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+        </div>
+        <div class="ide-title">index.html - CodeCraft Studio</div>
+        <button type="button" class="admin-login-trigger" id="adminTriggerBtn" onclick="openAdminModal()">
+            <i class="fa-solid fa-lock"></i>
+            <span id="adminTriggerText">دخول الآدمن</span>
+        </button>
+    </div>
+
+    <div class="container">
+        
+        <!-- واجهة الصفحة الرئيسية -->
+        <div id="homeView">
+            <div class="hero">
+                <span class="code-tag">&lt;CodeCraft /&gt;</span>
+                <h1>فكرة الموقع والأعضاء المؤسسون</h1>
+                <p>موقع عصري يجمع رواد البرمجة وتطوير الويب في بيئة تقنية متكاملة. يمكنك تدوير الدائرة بإصبعك أو الماوس، والضغط على أي عضو لعرض ملفه!</p>
+                
+                <div class="controls-toolbar">
+                    <div class="search-container">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن عضو أو تخصص..." oninput="filterTeamMembers()">
+                    </div>
+                    <button type="button" class="admin-add-btn" id="addMemberBtn" onclick="openAddMemberModal()">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>إضافة عضو جديد</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- عرض 3D -->
+            <div class="scene-3d" id="scene3d">
+                <div class="floor-glow"></div>
+                <div class="carousel-3d" id="teamGrid"></div>
+            </div>
+        </div>
+
+        <!-- واجهة الملف الشخصي المفصل -->
+        <div id="profileView" class="profile-view">
+            <div class="top-actions-bar">
+                <button type="button" class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-right"></i> العودة للرئيسية</button>
+                
+                <div class="admin-action-group">
+                    <input type="file" id="imageUploadInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                    <button type="button" class="admin-control-btn" id="uploadImgBtn" onclick="document.getElementById('imageUploadInput').click()">
+                        <i class="fa-solid fa-camera"></i>
+                        <span>تغيير الصورة</span>
+                    </button>
+
+                    <button type="button" class="admin-control-btn" id="topicBtn" onclick="openTopicPage()">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>تعديل البروفايل والمقال</span>
+                    </button>
+
+                    <button type="button" class="admin-control-btn admin-delete-btn" id="deleteMemberBtn" onclick="confirmDeleteMember()">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>حذف العضو</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="profile-header">
+                <img id="pImg" src="" alt="" class="profile-avatar">
+                <div class="profile-info">
+                    <h2 id="pName">اسم الشخص</h2>
+                    <p class="role" id="pRole">المسمى الوظيفي</p>
+                    
+                    <!-- مجموعة ألوان جاهزة لاختيار لون البروفايل -->
+                    <div class="profile-color-picker-box">
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">اختر لون البروفايل:</span>
+                        <div class="color-preset-btn" style="background: #00f2fe;" onclick="setProfileTheme('#00f2fe')"></div>
+                        <div class="color-preset-btn" style="background: #10b981;" onclick="setProfileTheme('#10b981')"></div>
+                        <div class="color-preset-btn" style="background: #f59e0b;" onclick="setProfileTheme('#f59e0b')"></div>
+                        <div class="color-preset-btn" style="background: #ec4899;" onclick="setProfileTheme('#ec4899')"></div>
+                        <div class="color-preset-btn" style="background: #8b5cf6;" onclick="setProfileTheme('#8b5cf6')"></div>
+                    </div>
+
+                    <div class="social-links" style="margin-top: 15px;">
+                        <a href="#" class="social-btn" title="تويتر / إكس"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="#" class="social-btn" title="لينكد إن"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="#" class="social-btn" title="جيت هاب"><i class="fa-brands fa-github"></i></a>
+                        <a href="#" class="social-btn" title="البريد الإلكتروني"><i class="fa-solid fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-content-grid">
+                <div class="skills-box">
+                    <div class="section-title"><i class="fa-solid fa-code"></i> المهارات التقنية</div>
+                    <div id="pSkills"></div>
+                </div>
+
+                <div class="articles-box">
+                    <div class="section-title"><i class="fa-solid fa-newspaper"></i> المقالات والبيانات البرمجية</div>
+                    <div id="pArticles"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- تذييل الصفحة -->
+    <footer class="site-footer" id="siteFooter">
+        <div class="custom-buttons-container" id="customButtonsContainer"></div>
+
+        <div class="footer-row">
+            <p>جميع الحقوق محفوظة © 2026 - منصة CodeCraft</p>
+            <div class="support-btn-group" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <button type="button" class="support-btn" onclick="openSupportModal()">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <span>الدعم الفني</span>
+                </button>
+                <button type="button" class="admin-theme-btn" id="themeSettingsBtn" onclick="openThemeModal()">
+                    <i class="fa-solid fa-palette"></i>
+                    <span>إعدادات الثيم والخلفية</span>
+                </button>
+                <button type="button" class="admin-add-custom-btn" id="addCustomBtn" onclick="openAddCustomButtonModal()">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>إضافة زر مخصص</span>
+                </button>
+                <button type="button" class="admin-edit-support-btn" id="editSupportBtn" onclick="openEditSupportModal()">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>تعديل الدعم</span>
+                </button>
+                <button type="button" class="admin-reset-btn" id="resetSiteBtn" onclick="confirmResetSite()">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>إعادة ضبط الموقع</span>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- نافذة تسجيل الدخول للآدمن -->
+    <div id="adminModal" class="modal-overlay" onclick="if(event.target === this) closeAdminModal()">
+        <div class="modal-box" id="loginModalContent">
+            <div class="modal-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <h3>لوحة تحكم الآدمن</h3>
+            <p>أدخل كلمة المرور لتفعيل صلاحيات التعديل</p>
+            <input type="password" id="adminPassInput" class="modal-input" placeholder="••••••" style="text-align: center; letter-spacing: 3px; font-family: 'Fira Code', monospace;" onkeyup="if(event.key === 'Enter') verifyAdminPassword()">
+            <div class="modal-error" id="adminErrorMsg" style="color: var(--danger); font-size: 0.85rem; margin-bottom: 10px;"></div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-confirm" onclick="verifyAdminPassword()">دخول</button>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeAdminModal()">إلغاء</button>
+            </div>
+        </div>
+
+        <div class="modal-box" id="logoutModalContent" style="display: none;">
+            <div class="modal-icon" style="color: var(--accent); border-color: var(--accent);"><i class="fa-solid fa-user-check"></i></div>
+            <h3>وضع الآدمن مفعل</h3>
+            <p>هل تريد تسجيل الخروج وإخفاء أزرار التحكم؟</p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-danger" onclick="confirmAdminLogout()">تسجيل الخروج</button>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeAdminModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إعدادات الثيم ورفع خلفية من الجهاز -->
+    <div id="themeModal" class="modal-overlay" onclick="if(event.target === this) closeThemeModal()">
+        <div class="modal-box">
+            <div class="modal-icon" style="color: #f59e0b; border-color: #f59e0b;"><i class="fa-solid fa-palette"></i></div>
+            <h3>إعدادات الثيم والخلفية</h3>
+            <p>اختر اللون الأساسي أو ارفع صورة خلفية من جهازك</p>
+            
+            <div class="form-group" style="text-align: right; margin-bottom: 12px;">
+                <label style="color: var(--primary); font-size: 0.9rem;">اللون الأساسي العام</label>
+                <input type="color" id="primaryColorPicker" value="#00f2fe" style="width: 100%; height: 40px; border-radius: 8px; border: none; cursor: pointer; background: transparent;">
+            </div>
+
+            <div class="form-group" style="text-align: right; margin-bottom: 15px;">
+                <label style="color: var(--primary); font-size: 0.9rem;">رفع صورة خلفية من الجهاز</label>
+                <input type="file" id="bgImageFileInput" accept="image/*" class="modal-input" style="padding: 8px; font-size: 0.9rem;">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-confirm" onclick="saveThemeSettings()">حفظ وتطبيق</button>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeThemeModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة زر مخصص -->
+    <div id="addCustomButtonModal" class="modal-overlay" onclick="if(event.target === this) closeAddCustomButtonModal()">
+        <div class="modal-box">
+            <div class="modal-icon"><i class="fa-solid fa-circle-plus"></i></div>
+            <h3>إضافة زر مخصص للموقع</h3>
+            <input type="text" id="customBtnName" class="modal-input" placeholder="اسم الزر">
+            <input type="text" id="customBtnUrl" class="modal-input" placeholder="الرابط (URL)" style="font-family: 'Fira Code', monospace;">
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-confirm" onclick="saveCustomButton()">إضافة</button>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeAddCustomButtonModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الدعم الفني -->
+    <div id="supportModal" class="modal-overlay" onclick="if(event.target === this) closeSupportModal()">
+        <div class="modal-box">
+            <div class="modal-icon" style="color: #25d366; border-color: #25d366;"><i class="fa-solid fa-headset"></i></div>
+            <h3>خدمة الدعم الفني</h3>
+            <div class="support-card">
+                <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=SupportAgent&backgroundColor=0f172a" alt="الدعم" class="support-avatar" id="supportAvatarImg">
+                <div class="support-info">
+                    <h4 id="supportAgentName">محمد شعبان</h4>
+                    <p id="supportAgentTitle">مسؤول الدعم</p>
+                </div>
+            </div>
+            <a href="#" id="supportWhatsappLink" target="_blank" class="whatsapp-direct-btn">
+                <i class="fa-brands fa-whatsapp" style="font-size: 1.3rem;"></i>
+                <span>مراسلة واتساب</span>
+            </a>
+            <div class="modal-actions" style="margin-top: 15px;">
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSupportModal()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل الدعم -->
+    <div id="editSupportModal" class="modal-overlay" onclick="if(event.target === this) closeEditSupportModal()">
+        <div class="modal-box">
+            <div class="modal-icon"><i class="fa-solid fa-headset"></i></div>
+            <h3>تعديل بيانات الدعم الفني</h3>
+            <input type="text" id="editSupportNameInput" class="modal-input" placeholder="اسم المسؤول">
+            <input type="text" id="editSupportPhoneInput" class="modal-input" placeholder="رقم الواتساب" style="font-family: 'Fira Code', monospace;">
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-confirm" onclick="saveSupportData()">حفظ</button>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeEditSupportModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة عضو -->
+    <div id="addMemberModal" class="modal-overlay" onclick="if(event.target === this) closeAddMemberModal()">
+        <div class="modal-box">
+            <div class="modal-icon" style="color: var(--accent); border-color: var(--accent);"><i class="fa-solid fa-user-plus"></i></div>
+            <h3>إضافة عضو جديد</h3>
+            <input type="text" id="newMemberName" class="modal-input" placeholder="اسم العضو">
+            <input type="text" id="newMemberRole" class="modal-input" placeholder="المسمى الوظيفي">
+            <input type="text" id="newMemberImg" class="modal-input" placeholder="رابط الصورة (اختياري)">
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-confirm" onclick="saveNewMember()">إضافة</button>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeAddMemberModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- إشعار Toast -->
+    <div id="toast" class="toast-notification">
+        <i class="fa-solid fa-circle-check" style="color: var(--accent);"></i>
+        <span id="toastMsg">تم الحفظ بنجاح</span>
+    </div>
+
+    <!-- محرر البروفايل والمقال -->
+    <div id="topicEditorView" class="topic-editor-view">
+        <div class="editor-container">
+            <div class="editor-top-bar">
+                <button type="button" class="back-btn" onclick="closeTopicPage()"><i class="fa-solid fa-arrow-right"></i> رجوع</button>
+                <button type="button" class="save-topic-btn" onclick="saveTopicData()"><i class="fa-solid fa-check"></i> حفظ التغييرات</button>
+            </div>
+            <div class="form-group">
+                <label>المسمى الوظيفي / الوصف</label>
+                <input type="text" id="editMemberRole" class="topic-title-input">
+            </div>
+            <div class="form-group">
+                <label>عنوان المقال البرمجي</label>
+                <input type="text" id="editArticleTitle" class="topic-title-input">
+            </div>
+            <div class="form-group">
+                <label>محتوى المقال</label>
+                <textarea id="editArticleText" class="topic-textarea"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        function closeWelcomePopup() {
+            document.getElementById('welcomePopupModal').style.display = 'none';
+        }
+
+        // تطبيق الثيم المخزن
+        let siteTheme = JSON.parse(localStorage.getItem('codecraft_theme')) || { primary: '#00f2fe', bgImage: '' };
+        function applySiteTheme() {
+            document.documentElement.style.setProperty('--primary', siteTheme.primary);
+            document.documentElement.style.setProperty('--border-glow', siteTheme.primary + '66');
+            if (siteTheme.bgImage) {
+                document.documentElement.style.setProperty('--custom-bg-image', `linear-gradient(rgba(11, 15, 25, 0.88), rgba(11, 15, 25, 0.88)), url('${siteTheme.bgImage}')`);
+            } else {
+                document.documentElement.style.setProperty('--custom-bg-image', 'none');
+            }
+        }
+        applySiteTheme();
+
+        const permanentTeamData = [
+            {
+                id: 1, name: "محمد شعبان", role: "مطور برمجيات شامل (Full-Stack)",
+                img: "https://api.dicebear.com/9.x/avataaars/svg?seed=Shaaban&backgroundColor=0f172a",
+                themeColor: "#00f2fe",
+                skills: [{ name: "جافاسكريبت / رياكت", level: 95 }, { name: "نود.إي إس", level: 90 }],
+                article: { title: "مستقبل هندسة البرمجيات في 2026", text: "أهمية أدوات الذكاء الاصطناعي في هندسة الويب." }
+            },
+            {
+                id: 2, name: "أدهم أحمد", role: "مهندس نظم وأمن سيبراني",
+                img: "https://api.dicebear.com/9.x/avataaars/svg?seed=Adham&backgroundColor=0f172a",
+                themeColor: "#10b981",
+                skills: [{ name: "أمن الشبكات", level: 92 }, { name: "بايثون", level: 88 }],
+                article: { title: "أهمية تأمين الأنظمة", text: "دليل مبسط لحماية الخوادم والبيانات." }
+            },
+            {
+                id: 3, name: "محمد عادل", role: "مطور تطبيقات الهواتف",
+                img: "https://api.dicebear.com/9.x/avataaars/svg?seed=Adel&backgroundColor=0f172a",
+                themeColor: "#f59e0b",
+                skills: [{ name: "فلاتر ودارت", level: 93 }, { name: "UI/UX الجوال", level: 87 }],
+                article: { title: "تطوير تطبيقات الجوال", text: "مقارنة بين التقنيات المختلفة." }
+            },
+            {
+                id: 4, name: "شهاب إبراهيم", role: "مطور واجهات وتجربة المستخدم",
+                img: "https://api.dicebear.com/9.x/avataaars/svg?seed=Shehab&backgroundColor=0f172a",
+                themeColor: "#ec4899",
+                skills: [{ name: "Figma & UI", level: 94 }, { name: "CSS Animations", level: 88 }],
+                article: { title: "تجربة المستخدم الناجحة", text: "كيف تجذب المستخدم بتصميم مريح." }
+            },
+            {
+                id: 5, name: "محمد عبد الصبور", role: "مطور واجهات أمامية",
+                img: "https://api.dicebear.com/9.x/avataaars/svg?seed=Sabour&backgroundColor=0f172a",
+                themeColor: "#8b5cf6",
+                skills: [{ name: "HTML/CSS", level: 98 }, { name: "Tailwind CSS", level: 90 }],
+                article: { title: "تصميم واجهات عصرية", text: "أفضل ممارسات الويب التفاعلي." }
+            }
+        ];
+
+        const defaultSupportData = { name: "محمد شعبان", phone: "201012345678" };
+        let supportData = JSON.parse(localStorage.getItem('codecraft_support_data')) || defaultSupportData;
+        let customButtons = JSON.parse(localStorage.getItem('codecraft_custom_buttons')) || [];
+
+        function updateSupportUI() {
+            document.getElementById('supportAgentName').innerText = supportData.name;
+            const encodedMsg = encodeURIComponent("مرحباً، أريد الاستفسار عن منصة CodeCraft");
+            document.getElementById('supportWhatsappLink').href = `https://wa.me/${supportData.phone}?text=${encodedMsg}`;
+            document.getElementById('supportAvatarImg').src = `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(supportData.name)}&backgroundColor=0f172a`;
+        }
+
+        function renderCustomButtons() {
+            const container = document.getElementById('customButtonsContainer');
+            container.innerHTML = '';
+            customButtons.forEach((btn, index) => {
+                const a = document.createElement('a');
+                a.href = btn.url; a.target = "_blank"; a.className = "custom-dynamic-btn";
+                a.innerHTML = `<i class="fa-solid fa-link"></i><span>${btn.name}</span>`;
+                const delBtn = document.createElement('button');
+                delBtn.className = "delete-custom-btn"; delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                delBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); deleteCustomButton(index); };
+                a.appendChild(delBtn); container.appendChild(a);
+            });
+        }
+
+        let storedData = JSON.parse(localStorage.getItem('codecraft_team_data'));
+        let teamData = JSON.parse(JSON.stringify(permanentTeamData));
+        if (storedData && Array.isArray(storedData)) {
+            permanentTeamData.forEach(p => { if (!storedData.some(m => m.name === p.name)) storedData.push(p); });
+            teamData = storedData;
+        }
+        localStorage.setItem('codecraft_team_data', JSON.stringify(teamData));
+
+        let currentMemberId = null;
+        let isAdminLoggedIn = localStorage.getItem('codecraft_admin') === 'true';
+
+        let currentAngle = 0, isDragging = false, startX = 0, autoSpinTimer = null;
+
+        function renderTeamCarousel(dataToRender = teamData) {
+            const grid = document.getElementById('teamGrid');
+            grid.innerHTML = '';
+            const total = dataToRender.length;
+            if (total === 0) {
+                grid.innerHTML = `<div style="color: var(--text-muted); text-align: center; width: 250px;">لا توجد أعضاء.</div>`;
+                return;
+            }
+            const radius = total <= 4 ? 240 : 310;
+            dataToRender.forEach((member, index) => {
+                const angle = (index / total) * 360;
+                const card = document.createElement('div');
+                card.className = 'team-card';
+                card.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
+                card.onclick = () => { if (!hasDragged) showProfile(member.id); };
+                card.innerHTML = `
+                    <div class="avatar-container"><img src="${member.img}" alt="${member.name}"></div>
+                    <h3>${member.name}</h3>
+                    <span>${member.role.split(' ')[0]}</span>
+                `;
+                grid.appendChild(card);
+            });
+            updateCarouselTransform();
+        }
+
+        function updateCarouselTransform() {
+            const grid = document.getElementById('teamGrid');
+            if (grid) grid.style.transform = `rotateY(${currentAngle}deg)`;
+        }
+
+        let hasDragged = false;
+        const scene = document.getElementById('scene3d');
+        scene.addEventListener('mousedown', (e) => { isDragging = true; hasDragged = false; startX = e.clientX; stopAutoSpin(); });
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const deltaX = e.clientX - startX;
+            if (Math.abs(deltaX) > 3) hasDragged = true;
+            currentAngle += deltaX * 0.5; startX = e.clientX; updateCarouselTransform();
+        });
+        window.addEventListener('mouseup', () => { if (isDragging) { isDragging = false; startAutoSpin(); } });
+
+        scene.addEventListener('touchstart', (e) => { isDragging = true; hasDragged = false; startX = e.touches[0].clientX; stopAutoSpin(); });
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const deltaX = e.touches[0].clientX - startX;
+            if (Math.abs(deltaX) > 3) hasDragged = true;
+            currentAngle += deltaX * 0.5; startX = e.touches[0].clientX; updateCarouselTransform();
+        });
+        window.addEventListener('touchend', () => { if (isDragging) { isDragging = false; startAutoSpin(); } });
+
+        function startAutoSpin() {
+            if (autoSpinTimer) clearInterval(autoSpinTimer);
+            autoSpinTimer = setInterval(() => {
+                if (!isDragging && document.getElementById('homeView').style.display !== 'none') {
+                    currentAngle -= 0.4; updateCarouselTransform();
+                }
+            }, 30);
+        }
+        function stopAutoSpin() { if (autoSpinTimer) clearInterval(autoSpinTimer); }
+
+        function filterTeamMembers() {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!q) { renderTeamCarousel(teamData); return; }
+            renderTeamCarousel(teamData.filter(m => m.name.toLowerCase().includes(q) || m.role.toLowerCase().includes(q)));
+        }
+
+        function showProfile(id) {
+            currentMemberId = id;
+            const member = teamData.find(m => m.id === id);
+            if (!member) return;
+
+            document.getElementById('pImg').src = member.img;
+            document.getElementById('pName').innerText = member.name;
+            document.getElementById('pRole').innerText = member.role;
+
+            const mColor = member.themeColor || '#00f2fe';
+            document.getElementById('profileView').style.borderColor = mColor;
+            document.getElementById('pImg').style.borderColor = mColor;
+            
+            document.getElementById('pSkills').innerHTML = member.skills.map(s => `
+                <div class="skill-item">
+                    <div class="skill-info"><span>${s.name}</span><span>${s.level}%</span></div>
+                    <div class="skill-bar"><div class="skill-progress" style="width: ${s.level}%; background: ${mColor};"></div></div>
+                </div>
+            `).join('');
+
+            document.getElementById('pArticles').innerHTML = `
+                <div class="article-card">
+                    <h4>${member.article.title}</h4>
+                    <p>${member.article.text}</p>
+                </div>
+            `;
+
+            document.getElementById('homeView').style.display = 'none';
+            document.getElementById('profileView').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // تغيير لون البروفايل الفردي
+        function setProfileTheme(color) {
+            const member = teamData.find(m => m.id === currentMemberId);
+            if (!member) return;
+            member.themeColor = color;
+            localStorage.setItem('codecraft_team_data', JSON.stringify(teamData));
+            showProfile(currentMemberId);
+            showToast("تم تغيير لون البروفايل بنجاح!");
+        }
+
+        function goHome() {
+            document.getElementById('profileView').style.display = 'none';
+            document.getElementById('homeView').style.display = 'block';
+            currentMemberId = null;
+        }
+
+        function updateAdminUI() {
+            const btn = document.getElementById('adminTriggerBtn');
+            const txt = document.getElementById('adminTriggerText');
+            const icon = btn.querySelector('i');
+            const addMemberBtn = document.getElementById('addMemberBtn');
+            const topicBtn = document.getElementById('topicBtn');
+            const uploadImgBtn = document.getElementById('uploadImgBtn');
+            const deleteMemberBtn = document.getElementById('deleteMemberBtn');
+            const addCustomBtn = document.getElementById('addCustomBtn');
+            const editSupportBtn = document.getElementById('editSupportBtn');
+            const resetSiteBtn = document.getElementById('resetSiteBtn');
+            const themeSettingsBtn = document.getElementById('themeSettingsBtn');
+            const footer = document.getElementById('siteFooter');
+
+            if (isAdminLoggedIn) {
+                btn.className = "admin-login-trigger logged-in";
+                icon.className = "fa-solid fa-lock-open";
+                txt.innerText = "أدمن (متصل)";
+                footer.classList.add('admin-mode-active');
+                if (addMemberBtn) addMemberBtn.classList.add('authorized');
+                if (topicBtn) topicBtn.classList.add('authorized');
+                if (uploadImgBtn) uploadImgBtn.classList.add('authorized');
+                if (deleteMemberBtn) deleteMemberBtn.classList.add('authorized');
+                if (addCustomBtn) addCustomBtn.classList.add('authorized');
+                if (editSupportBtn) editSupportBtn.classList.add('authorized');
+                if (resetSiteBtn) resetSiteBtn.classList.add('authorized');
+                if (themeSettingsBtn) themeSettingsBtn.classList.add('authorized');
+            } else {
+                btn.className = "admin-login-trigger";
+                icon.className = "fa-solid fa-lock";
+                txt.innerText = "دخول الآدمن";
+                footer.classList.remove('admin-mode-active');
+                if (addMemberBtn) addMemberBtn.classList.remove('authorized');
+                if (topicBtn) topicBtn.classList.remove('authorized');
+                if (uploadImgBtn) uploadImgBtn.classList.remove('authorized');
+                if (deleteMemberBtn) deleteMemberBtn.classList.remove('authorized');
+                if (addCustomBtn) addCustomBtn.classList.remove('authorized');
+                if (editSupportBtn) editSupportBtn.classList.remove('authorized');
+                if (resetSiteBtn) resetSiteBtn.classList.remove('authorized');
+                if (themeSettingsBtn) themeSettingsBtn.classList.remove('authorized');
+            }
+        }
+
+        function openAdminModal() {
+            const modal = document.getElementById('adminModal');
+            const loginBox = document.getElementById('loginModalContent');
+            const logoutBox = document.getElementById('logoutModalContent');
+            if (isAdminLoggedIn) { loginBox.style.display = 'none'; logoutBox.style.display = 'block'; }
+            else { logoutBox.style.display = 'none'; loginBox.style.display = 'block'; document.getElementById('adminPassInput').value = ''; document.getElementById('adminErrorMsg').innerText = ''; }
+            modal.style.display = 'flex';
+        }
+
+        function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
+
+        function verifyAdminPassword() {
+            const pass = document.getElementById('adminPassInput').value;
+            if (pass === "752321") {
+                isAdminLoggedIn = true; localStorage.setItem('codecraft_admin', 'true');
+                updateAdminUI(); closeAdminModal(); showToast("تم تسجيل الدخول كآدمن!");
+            } else {
+                document.getElementById('adminErrorMsg').innerText = "كلمة السر غير صحيحة!";
+            }
+        }
+
+        function confirmAdminLogout() {
+            isAdminLoggedIn = false; localStorage.removeItem('codecraft_admin');
+            updateAdminUI(); closeAdminModal(); showToast("تم تسجيل الخروج.");
+        }
+
+        // نافذة الثيم ورفع الخلفية من الجهاز
+        function openThemeModal() {
+            document.getElementById('primaryColorPicker').value = siteTheme.primary;
+            document.getElementById('themeModal').style.display = 'flex';
+        }
+        function closeThemeModal() { document.getElementById('themeModal').style.display = 'none'; }
+
+        function saveThemeSettings() {
+            const primary = document.getElementById('primaryColorPicker').value;
+            const fileInput = document.getElementById('bgImageFileInput');
+            
+            siteTheme.primary = primary;
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    siteTheme.bgImage = e.target.result;
+                    localStorage.setItem('codecraft_theme', JSON.stringify(siteTheme));
+                    applySiteTheme();
+                    closeThemeModal();
+                    showToast("تم حفظ الثيم والخلفية بنجاح!");
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                localStorage.setItem('codecraft_theme', JSON.stringify(siteTheme));
+                applySiteTheme();
+                closeThemeModal();
+                showToast("تم تحديث لون الثيم بنجاح!");
+            }
+        }
+
+        function openAddCustomButtonModal() { document.getElementById('addCustomButtonModal').style.display = 'flex'; }
+        function closeAddCustomButtonModal() { document.getElementById('addCustomButtonModal').style.display = 'none'; }
+        function saveCustomButton() {
+            const name = document.getElementById('customBtnName').value.trim();
+            const url = document.getElementById('customBtnUrl').value.trim();
+            if (!name || !url) { showToast("أدخل الاسم والرابط."); return; }
+            customButtons.push({ name, url });
+            localStorage.setItem('codecraft_custom_buttons', JSON.stringify(customButtons));
+            renderCustomButtons(); closeAddCustomButtonModal(); showToast("تم إضافة الزر!");
+        }
+        function deleteCustomButton(index) {
+            if (confirm("حذف هذا الزر؟")) {
+                customButtons.splice(index, 1);
+                localStorage.setItem('codecraft_custom_buttons', JSON.stringify(customButtons));
+                renderCustomButtons(); showToast("تم الحذف.");
+            }
+        }
+
+        function confirmResetSite() {
+            if (confirm("إعادة ضبط الموقع بالكامل وإلغاء كافة التعديلات؟")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function openSupportModal() { document.getElementById('supportModal').style.display = 'flex'; }
+        function closeSupportModal() { document.getElementById('supportModal').style.display = 'none'; }
+        function openEditSupportModal() {
+            document.getElementById('editSupportNameInput').value = supportData.name;
+            document.getElementById('editSupportPhoneInput').value = supportData.phone;
+            document.getElementById('editSupportModal').style.display = 'flex';
+        }
+        function closeEditSupportModal() { document.getElementById('editSupportModal').style.display = 'none'; }
+        function saveSupportData() {
+            const name = document.getElementById('editSupportNameInput').value.trim();
+            const phone = document.getElementById('editSupportPhoneInput').value.trim();
+            if (!name || !phone) return;
+            supportData = { name, phone };
+            localStorage.setItem('codecraft_support_data', JSON.stringify(supportData));
+            updateSupportUI(); closeEditSupportModal(); showToast("تم تحديث الدعم.");
+        }
+
+        function openAddMemberModal() { document.getElementById('addMemberModal').style.display = 'flex'; }
+        function closeAddMemberModal() { document.getElementById('addMemberModal').style.display = 'none'; }
+        function saveNewMember() {
+            const name = document.getElementById('newMemberName').value.trim();
+            const role = document.getElementById('newMemberRole').value.trim();
+            let img = document.getElementById('newMemberImg').value.trim();
+            if (!name || !role) { showToast("أدخل البيانات الأساسية."); return; }
+            if (!img) img = `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(name)}`;
+            teamData.push({
+                id: Date.now(), name, role, img, themeColor: "#00f2fe",
+                skills: [{ name: "تطوير الويب", level: 90 }],
+                article: { title: `مرحباً بك مع ${name}`, text: "مقال افتتاحي للعضو الجديد." }
+            });
+            localStorage.setItem('codecraft_team_data', JSON.stringify(teamData));
+            renderTeamCarousel(); closeAddMemberModal(); showToast("تم إضافة العضو!");
+        }
+
+        function confirmDeleteMember() {
+            if (!currentMemberId) return;
+            const member = teamData.find(m => m.id === currentMemberId);
+            const protectedNames = ["محمد شعبان", "أدهم أحمد", "محمد عادل", "شهاب إبراهيم", "محمد عبد الصبور"];
+            if (protectedNames.includes(member.name)) { alert("لا يمكن حذف الأعضاء الأساسيين!"); return; }
+            if (confirm("حذف هذا البروفايل؟")) {
+                teamData = teamData.filter(m => m.id !== currentMemberId);
+                localStorage.setItem('codecraft_team_data', JSON.stringify(teamData));
+                renderTeamCarousel(); goHome(); showToast("تم الحذف.");
+            }
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file || !currentMemberId) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const member = teamData.find(m => m.id === currentMemberId);
+                if (member) {
+                    member.img = evt.target.result;
+                    localStorage.setItem('codecraft_team_data', JSON.stringify(teamData));
+                    document.getElementById('pImg').src = member.img;
+                    renderTeamCarousel(); showToast("تم تحديث الصورة!");
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function openTopicPage() {
+            const member = teamData.find(m => m.id === currentMemberId);
+            if (!member) return;
+            document.getElementById('editMemberRole').value = member.role;
+            document.getElementById('editArticleTitle').value = member.article.title;
+            document.getElementById('editArticleText').value = member.article.text;
+            document.getElementById('topicEditorView').style.display = 'block';
+        }
+        function closeTopicPage() { document.getElementById('topicEditorView').style.display = 'none'; }
+        function saveTopicData() {
+            const member = teamData.find(m => m.id === currentMemberId);
+            if (!member) return;
+            member.role = document.getElementById('editMemberRole').value;
+            member.article.title = document.getElementById('editArticleTitle').value;
+            member.article.text = document.getElementById('editArticleText').value;
+            localStorage.setItem('codecraft_team_data', JSON.stringify(teamData));
+            showProfile(currentMemberId); closeTopicPage(); showToast("تم الحفظ!");
+        }
+
+        window.onload = function() {
+            updateAdminUI();
+            renderTeamCarousel();
+            updateSupportUI();
+            renderCustomButtons();
+            startAutoSpin();
+        };
+    </script>
+<!-- مكتبة وسيرفر Supabase السحابي -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://qogvaombrlhrvpripswv.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_UfCJngB1biqKhUu-PhMcIg_JHLUigOT';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log("تم الاتصال بـ Supabase بنجاح!");
+    </script>
+</body>
+</html>
