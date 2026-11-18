@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- جدار الحماية الداخلي (CSP) لحماية الموقع من الثغرات والحقن الخبيث -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://images.unsplash.com https://api.dicebear.com; script-src 'self' 'unsafe-inline';">
+    <!-- جدار الحماية المحدث للسماح بـ Supabase و CDN -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://images.unsplash.com https://api.dicebear.com https://*.supabase.co; connect-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;">
     <title>منصة المبرمجين - CodeCraft 3D</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
