@@ -1246,7 +1246,7 @@
     <script>
         const SUPABASE_URL = 'https://qogvaombrlhrvpripswv.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_UfCJngB1biqKhUu-PhMcIg_JHLUigOT';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log("تم الاتصال بـ Supabase بنجاح!");
     </script>
 </body>
