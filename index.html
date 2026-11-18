@@ -1240,14 +1240,46 @@
             renderCustomButtons();
             startAutoSpin();
         };
-    </script>
-<!-- مكتبة وسيرفر Supabase السحابي -->
+  </script>
+<!-- مكتبة وسيرفر وسكربتات Supabase السحابي -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = 'https://qogvaombrlhrvpripswv.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_UfCJngB1biqKhUu-PhMcIg_JHLUigOT';
         window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log("تم الاتصال بـ Supabase بنجاح!");
+
+        // دالة حفظ المقال أو المشروع في جدول projects
+        async function saveArticleToSupabase(titleText, contentText) {
+            const { data, error } = await window.supabaseClient
+                .from('projects')
+                .insert([{ title: titleText, content: contentText }]);
+            
+            if (error) {
+                console.error('خطأ في حفظ البيانات:', error);
+            } else {
+                console.log('تم الحفظ بنجاح وتحديث السحابة!', data);
+                loadArticlesFromSupabase();
+            }
+        }
+
+        // دالة جلب المقالات وعرضها لكل الزوار
+        async function loadArticlesFromSupabase() {
+            const { data, error } = await window.supabaseClient
+                .from('projects')
+                .select('*')
+                .order('id', { ascending: false });
+            
+            if (error) {
+                console.error('خطأ في جلب البيانات:', error);
+            } else {
+                console.log('البيانات المُسترجعة من السحابة:', data);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadArticlesFromSupabase();
+        });
     </script>
 </body>
 </html>
