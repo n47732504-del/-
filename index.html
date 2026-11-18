@@ -438,7 +438,7 @@
         }
         .admin-mode-active .delete-custom-btn { display: flex; }
 
-        .admin-edit-support-btn, .admin-add-custom-btn, .admin-reset-btn, .admin-theme-btn {
+        .admin-edit-support-btn, .admin-add-custom-btn, .admin-reset-btn, .admin-theme-btn, .admin-password-btn {
             display: none; background: rgba(0, 242, 254, 0.15); border: 1px solid var(--primary); color: var(--primary);
             padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.85rem;
             align-items: center; gap: 6px; transition: 0.3s;
@@ -446,12 +446,14 @@
         .admin-add-custom-btn { background: rgba(16, 185, 129, 0.15); border-color: var(--accent); color: var(--accent); }
         .admin-reset-btn { background: rgba(239, 68, 68, 0.15); border-color: var(--danger); color: var(--danger); }
         .admin-theme-btn { background: rgba(245, 158, 11, 0.15); border-color: #f59e0b; color: #f59e0b; }
+        .admin-password-btn { background: rgba(139, 92, 246, 0.15); border-color: #8b5cf6; color: #8b5cf6; }
 
-        .admin-edit-support-btn.authorized, .admin-add-custom-btn.authorized, .admin-reset-btn.authorized, .admin-theme-btn.authorized { display: inline-flex; }
+        .admin-edit-support-btn.authorized, .admin-add-custom-btn.authorized, .admin-reset-btn.authorized, .admin-theme-btn.authorized, .admin-password-btn.authorized { display: inline-flex; }
         .admin-edit-support-btn:hover { background: var(--primary); color: #0b0f19; }
         .admin-add-custom-btn:hover { background: var(--accent); color: #fff; }
         .admin-reset-btn:hover { background: var(--danger); color: #fff; }
         .admin-theme-btn:hover { background: #f59e0b; color: #fff; }
+        .admin-password-btn:hover { background: #8b5cf6; color: #fff; }
 
         /* النوافذ المنبثقة Modal */
         .modal-overlay {
@@ -650,6 +652,10 @@
                     <i class="fa-brands fa-whatsapp"></i>
                     <span>الدعم الفني</span>
                 </button>
+                <button type="button" class="admin-password-btn" id="changePassBtn" onclick="openChangePasswordModal()">
+                    <i class="fa-solid fa-key"></i>
+                    <span>تغيير باسورد الآدمن</span>
+                </button>
                 <button type="button" class="admin-theme-btn" id="themeSettingsBtn" onclick="openThemeModal()">
                     <i class="fa-solid fa-palette"></i>
                     <span>إعدادات الثيم والخلفية</span>
@@ -691,6 +697,23 @@
             <div class="modal-actions">
                 <button type="button" class="modal-btn modal-btn-danger" onclick="confirmAdminLogout()">تسجيل الخروج</button>
                 <button type="button" class="modal-btn modal-btn-cancel" onclick="closeAdminModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تغيير كلمة مرور الآدمن -->
+    <div id="changePasswordModal" class="modal-overlay" onclick="if(event.target === this) closeChangePasswordModal()">
+        <div class="modal-box">
+            <div class="modal-icon" style="color: #8b5cf6; border-color: #8b5cf6;"><i class="fa-solid fa-key"></i></div>
+            <h3>تغيير كلمة مرور الآدمن</h3>
+            <p>أدخل الباسورد الحالي ثم الباسورد الجديد</p>
+            <input type="password" id="oldPassInput" class="modal-input" placeholder="كلمة المرور الحالية" style="text-align: center;">
+            <input type="password" id="newPassInput" class="modal-input" placeholder="كلمة المرور الجديدة" style="text-align: center;">
+            <input type="password" id="confirmPassInput" class="modal-input" placeholder="تأكيد كلمة المرور الجديدة" style="text-align: center;">
+            <div class="modal-error" id="changePassErrorMsg" style="color: var(--danger); font-size: 0.85rem; margin-bottom: 10px;"></div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-confirm" onclick="saveNewAdminPassword()">حفظ الباسورد الجديد</button>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeChangePasswordModal()">إلغاء</button>
             </div>
         </div>
     </div>
@@ -1039,6 +1062,7 @@
             const editSupportBtn = document.getElementById('editSupportBtn');
             const resetSiteBtn = document.getElementById('resetSiteBtn');
             const themeSettingsBtn = document.getElementById('themeSettingsBtn');
+            const changePassBtn = document.getElementById('changePassBtn');
             const footer = document.getElementById('siteFooter');
 
             if (isAdminLoggedIn) {
@@ -1054,6 +1078,7 @@
                 if (editSupportBtn) editSupportBtn.classList.add('authorized');
                 if (resetSiteBtn) resetSiteBtn.classList.add('authorized');
                 if (themeSettingsBtn) themeSettingsBtn.classList.add('authorized');
+                if (changePassBtn) changePassBtn.classList.add('authorized');
             } else {
                 btn.className = "admin-login-trigger";
                 icon.className = "fa-solid fa-lock";
@@ -1067,6 +1092,7 @@
                 if (editSupportBtn) editSupportBtn.classList.remove('authorized');
                 if (resetSiteBtn) resetSiteBtn.classList.remove('authorized');
                 if (themeSettingsBtn) themeSettingsBtn.classList.remove('authorized');
+                if (changePassBtn) changePassBtn.classList.remove('authorized');
             }
         }
 
@@ -1081,9 +1107,14 @@
 
         function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
 
+        // إدارة كلمة المرور المخزنة (الافتراضية: 752321)
+        function getStoredAdminPassword() {
+            return localStorage.getItem('codecraft_admin_pass') || "752321";
+        }
+
         function verifyAdminPassword() {
             const pass = document.getElementById('adminPassInput').value;
-            if (pass === "752321") {
+            if (pass === getStoredAdminPassword()) {
                 isAdminLoggedIn = true; localStorage.setItem('codecraft_admin', 'true');
                 updateAdminUI(); closeAdminModal(); showToast("تم تسجيل الدخول كآدمن!");
             } else {
@@ -1094,6 +1125,43 @@
         function confirmAdminLogout() {
             isAdminLoggedIn = false; localStorage.removeItem('codecraft_admin');
             updateAdminUI(); closeAdminModal(); showToast("تم تسجيل الخروج.");
+        }
+
+        // فتح وإغلاق نافذة تغيير الباسورد
+        function openChangePasswordModal() {
+            document.getElementById('oldPassInput').value = '';
+            document.getElementById('newPassInput').value = '';
+            document.getElementById('confirmPassInput').value = '';
+            document.getElementById('changePassErrorMsg').innerText = '';
+            document.getElementById('changePasswordModal').style.display = 'flex';
+        }
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'none';
+        }
+
+        // حفظ كلمة المرور الجديدة
+        function saveNewAdminPassword() {
+            const oldPass = document.getElementById('oldPassInput').value;
+            const newPass = document.getElementById('newPassInput').value;
+            const confirmPass = document.getElementById('confirmPassInput').value;
+            const errorEl = document.getElementById('changePassErrorMsg');
+
+            if (oldPass !== getStoredAdminPassword()) {
+                errorEl.innerText = "كلمة المرور الحالية غير صحيحة!";
+                return;
+            }
+            if (!newPass || newPass.length < 4) {
+                errorEl.innerText = "كلمة المرور الجديدة قصيرة جداً (4 أرقام على الأقل)!";
+                return;
+            }
+            if (newPass !== confirmPass) {
+                errorEl.innerText = "كلمة المرور الجديدة غير متطابقة!";
+                return;
+            }
+
+            localStorage.setItem('codecraft_admin_pass', newPass);
+            closeChangePasswordModal();
+            showToast("تم تغيير كلمة مرور الآدمن بنجاح! 🔐");
         }
 
         // نافذة الثيم ورفع الخلفية من الجهاز
