@@ -43,6 +43,32 @@
             flex-direction: column;
         }
 
+        /* شريط تقدم القراءة العلوي */
+        .reading-progress-bar-wrap {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            z-index: 12000;
+            display: none;
+        }
+        .reading-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.12s linear;
+        }
+
+        /* وضع القراءة المريح (Focus Mode) */
+        body.focus-reading-mode .ide-bar,
+        body.focus-reading-mode .site-footer,
+        body.focus-reading-mode .subpages-tabs,
+        body.focus-reading-mode .articles-search-row {
+            display: none !important;
+        }
+
         .ide-bar {
             background: #080c14;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -50,6 +76,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .ide-dots { display: flex; gap: 8px; }
@@ -62,6 +90,35 @@
             font-family: 'Fira Code', monospace;
             font-size: 0.9rem;
             color: var(--text-muted);
+        }
+
+        .top-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .articles-nav-btn {
+            background: rgba(0, 242, 254, 0.08);
+            border: 1px solid rgba(0, 242, 254, 0.35);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.3s;
+        }
+
+        .articles-nav-btn:hover,
+        .articles-nav-btn.active {
+            background: var(--primary);
+            color: #0b0f19;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
         }
 
         .admin-login-trigger {
@@ -90,6 +147,7 @@
             margin: 0 auto;
             padding: 40px 20px;
             flex: 1;
+            width: 100%;
         }
 
         .hero { text-align: center; margin-bottom: 20px; }
@@ -233,7 +291,7 @@
             pointer-events: none;
         }
 
-        .profile-view {
+        .profile-view, .articles-page-view, .subpage-photos-view {
             display: none;
             background: var(--card-bg);
             border: 1px solid var(--primary);
@@ -266,6 +324,47 @@
         }
         .back-btn:hover { background: var(--primary); color: var(--bg-color); }
 
+        .utility-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.25s;
+        }
+        .utility-btn:hover,
+        .utility-btn.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(0, 242, 254, 0.12);
+        }
+
+        .photos-page-btn {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            color: var(--accent);
+            padding: 7px 14px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.25s;
+        }
+        .photos-page-btn:hover {
+            background: var(--accent);
+            color: #0b0f19;
+            transform: translateY(-2px);
+        }
+
         .admin-action-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
         .admin-control-btn {
@@ -285,6 +384,379 @@
         .admin-delete-btn { background: linear-gradient(135deg, var(--danger), #dc2626) !important; color: #fff !important; }
         .admin-control-btn.authorized { display: inline-flex; }
         .admin-control-btn:hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.1); }
+
+        /* صفحة الصور الخاصة بكل صفحة من الصفحات الخمس */
+        .photos-blank-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding-bottom: 18px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .photos-blank-header h2 {
+            font-size: 1.65rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-photo-uploader-box {
+            display: none;
+            background: rgba(8, 12, 20, 0.65);
+            border: 1px dashed rgba(0, 242, 254, 0.45);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .admin-photo-uploader-box.authorized {
+            display: flex;
+        }
+
+        .photos-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 18px;
+            min-height: 240px;
+        }
+
+        .photo-card-item {
+            background: rgba(8, 12, 20, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            transition: 0.25s;
+        }
+
+        .photo-card-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .photo-card-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+            background: #080c14;
+        }
+
+        .photo-delete-btn {
+            display: none;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(239, 68, 68, 0.92);
+            color: #fff;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .photo-delete-btn.authorized {
+            display: inline-flex;
+        }
+
+        .empty-photos-state {
+            grid-column: 1 / -1;
+            min-height: 240px;
+            border: 1px dashed rgba(255, 255, 255, 0.14);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            gap: 10px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        /* تنسيقات صفحة المقالات والصفحات الـ 5 */
+        .articles-header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .articles-header-box h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .articles-search-row {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .article-search-results {
+            display: none;
+            background: rgba(8, 12, 20, 0.78);
+            border: 1px solid rgba(0, 242, 254, 0.22);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .article-search-results.visible {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: rgba(19, 28, 46, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .search-result-item:last-child { margin-bottom: 0; }
+        .search-result-item:hover {
+            border-color: var(--primary);
+            transform: translateX(-3px);
+        }
+
+        .subpages-tabs {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .subpages-tabs { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 500px) {
+            .subpages-tabs { grid-template-columns: 1fr; }
+        }
+
+        .subpage-tab-btn {
+            background: rgba(8, 12, 20, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-muted);
+            padding: 14px 16px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.25s;
+            text-align: center;
+        }
+
+        .subpage-tab-btn:hover {
+            border-color: var(--primary);
+            color: var(--text-main);
+            transform: translateY(-2px);
+        }
+
+        .subpage-tab-btn.active {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.18), rgba(79, 172, 254, 0.14));
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.18);
+        }
+
+        .subpage-panel {
+            background: rgba(8, 12, 20, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 28px;
+        }
+
+        .subpage-top-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .meta-badges-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .word-counter-badge {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: var(--accent);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .read-time-badge {
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .article-toolbar-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .toc-box {
+            background: rgba(19, 28, 46, 0.65);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        .toc-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toc-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .toc-chip {
+            background: rgba(8, 12, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .toc-chip:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .long-article-reader {
+            background: rgba(19, 28, 46, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .long-article-reader h3 {
+            font-size: 1.4rem;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .last-updated-label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .long-article-body {
+            color: var(--text-main);
+            font-size: 1.02rem;
+            line-height: 1.9;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 560px;
+            overflow-y: auto;
+            padding-left: 8px;
+        }
+
+        .article-paragraph-anchor {
+            scroll-margin-top: 20px;
+        }
+
+        .long-editor-box {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.14);
+        }
+
+        .long-editor-box.authorized {
+            display: block;
+        }
+
+        .long-textarea {
+            width: 100%;
+            min-height: 420px;
+            background: rgba(11, 15, 25, 0.9);
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 1rem;
+            line-height: 1.85;
+            padding: 18px;
+            resize: vertical;
+            outline: none;
+            text-align: right;
+        }
+
+        .long-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.12);
+        }
 
         .profile-header {
             display: flex; align-items: center; gap: 30px;
@@ -451,6 +923,10 @@
 </head>
 <body>
 
+    <div class="reading-progress-bar-wrap" id="readingProgressWrap">
+        <div class="reading-progress-bar" id="readingProgressBar"></div>
+    </div>
+
     <div id="welcomePopupModal" class="modal-overlay" style="display: flex;">
         <div class="modal-box" style="max-width: 500px;">
             <div class="modal-icon"><i class="fa-solid fa-code"></i></div>
@@ -471,10 +947,16 @@
             <div class="dot dot-green"></div>
         </div>
         <div class="ide-title">index.html - CodeCraft Studio</div>
-        <button type="button" class="admin-login-trigger" id="adminTriggerBtn" onclick="openAdminModal()">
-            <i class="fa-solid fa-lock"></i>
-            <span id="adminTriggerText">دخول الآدمن</span>
-        </button>
+        <div class="top-nav-actions">
+            <button type="button" class="articles-nav-btn" id="articlesNavBtn" onclick="openArticlesPage()">
+                <i class="fa-solid fa-newspaper"></i>
+                <span>المقالات</span>
+            </button>
+            <button type="button" class="admin-login-trigger" id="adminTriggerBtn" onclick="openAdminModal()">
+                <i class="fa-solid fa-lock"></i>
+                <span id="adminTriggerText">دخول الآدمن</span>
+            </button>
+        </div>
     </div>
 
     <div class="container">
@@ -501,6 +983,147 @@
                 <div class="floor-glow"></div>
                 <div class="carousel-3d" id="teamGrid"></div>
             </div>
+        </div>
+
+        <!-- صفحة المقالات الرئيسية وبداخلها 5 صفحات -->
+        <div id="articlesPageView" class="articles-page-view">
+            <div class="articles-header-box">
+                <div>
+                    <h2><i class="fa-solid fa-book-open"></i> المقالات</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 6px;">
+                        تحتوي على 5 صفحات مخصصة للمقالات والموسوعات الطويلة (دعم كامل لأكثر من 5,000 كلمة لكل صفحة).
+                    </p>
+                </div>
+                <div class="admin-action-group">
+                    <button type="button" class="utility-btn" id="focusModeBtn" onclick="toggleFocusReadingMode()">
+                        <i class="fa-solid fa-eye"></i>
+                        <span>وضع قراءة مريح</span>
+                    </button>
+                    <button type="button" class="admin-control-btn" id="renameSubpageBtn" onclick="openRenameSubpageModal()">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>تعديل اسم الصفحة</span>
+                    </button>
+                    <button type="button" class="back-btn" onclick="goHome()">
+                        <i class="fa-solid fa-arrow-right"></i> العودة للرئيسية
+                    </button>
+                </div>
+            </div>
+
+            <!-- بحث سريع داخل الصفحات الخمس -->
+            <div class="articles-search-row">
+                <div class="search-container" style="max-width: 100%;">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="articlesSearchInput" class="search-input" placeholder="ابحث عن كلمة أو عنوان داخل الصفحات الخمس..." oninput="searchAcrossArticlePages()">
+                </div>
+                <div class="article-search-results" id="articleSearchResults"></div>
+            </div>
+
+            <div class="subpages-tabs" id="subpagesTabs"></div>
+
+            <div class="subpage-panel">
+                <div class="subpage-top-meta">
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <div>
+                            <span style="color: var(--primary); font-weight: 800; font-size: 1.15rem;" id="activeSubpageTabTitle">صفحة 1</span>
+                            <span style="color: var(--text-muted); font-size: 0.85rem; margin-right: 10px;" id="activeSubpageIndexLabel">(1 من 5)</span>
+                        </div>
+                        <button type="button" class="photos-page-btn" id="subpagePhotosBtn" onclick="openSubpagePhotosPage()">
+                            <i class="fa-solid fa-images"></i>
+                            <span>الصور</span>
+                        </button>
+                    </div>
+                    <div class="meta-badges-group">
+                        <div class="read-time-badge" id="subpageReadTime">
+                            <i class="fa-regular fa-clock"></i>
+                            <span id="readTimeText">0 دقيقة قراءة</span>
+                        </div>
+                        <div class="word-counter-badge" id="subpageWordCounter">
+                            <i class="fa-solid fa-file-word"></i>
+                            <span id="wordCountText">0 كلمة</span>
+                            <span>|</span>
+                            <span id="charCountText">0 حرف</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- أزرار نسخ وتصدير المقال -->
+                <div class="article-toolbar-actions">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" class="utility-btn" onclick="copyCurrentArticle()">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>نسخ المقال</span>
+                        </button>
+                        <button type="button" class="utility-btn" onclick="exportCurrentArticleTxt()">
+                            <i class="fa-solid fa-file-arrow-down"></i>
+                            <span>تصدير (.txt)</span>
+                        </button>
+                    </div>
+                    <span style="font-size: 0.82rem; color: var(--text-muted);" id="readingPercentLabel">نسبة القراءة: 0%</span>
+                </div>
+
+                <!-- فهرس تلقائي للفقرات والأقسام -->
+                <div class="toc-box" id="articleTocBox" style="display: none;">
+                    <div class="toc-title"><i class="fa-solid fa-list-ul"></i> فهرس سريع لأقسام المقال</div>
+                    <div class="toc-list" id="articleTocList"></div>
+                </div>
+
+                <div class="long-article-reader">
+                    <h3 id="displayLongArticleTitle">عنوان المقال</h3>
+                    <div class="last-updated-label" id="displayLastUpdated">
+                        <i class="fa-regular fa-calendar-check"></i>
+                        <span>آخر تحديث: لم يتم التعديل بعد</span>
+                    </div>
+                    <div class="long-article-body" id="displayLongArticleContent" onscroll="updateReadingProgress()"></div>
+                </div>
+
+                <div class="long-editor-box" id="longArticleEditorBox">
+                    <div class="section-title" style="margin-bottom: 14px;">
+                        <i class="fa-solid fa-feather-pointed"></i> تحرير محتوى الصفحة الحالية (أدمن فقط - يدعم +5,000 كلمة)
+                    </div>
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label>عنوان المقال داخل الصفحة</label>
+                        <input type="text" id="longArticleTitleInput" class="topic-title-input" placeholder="اكتب عنوان المقال...">
+                    </div>
+                    <div class="form-group">
+                        <label>نص المقال الطويل (يمكنك كتابة أكثر من 5,000 كلمة)</label>
+                        <textarea id="longArticleTextarea" class="long-textarea" placeholder="ابدأ بكتابة المقال الطويل هنا (يدعم أكثر من 5,000 كلمة)..." oninput="updateLiveWordCount()"></textarea>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+                        <button type="button" class="save-topic-btn" onclick="saveLongSubpageArticle()">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> حفظ المقال ومزامنته
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة الصور الفارغة لكل صفحة داخل المقالات -->
+        <div id="subpagePhotosView" class="subpage-photos-view">
+            <div class="photos-blank-header">
+                <h2>
+                    <i class="fa-solid fa-images"></i>
+                    <span>الصور - <span id="photosPageSubpageName">صفحة 1</span></span>
+                </h2>
+                <button type="button" class="back-btn" onclick="backToArticlesFromPhotos()">
+                    <i class="fa-solid fa-arrow-right"></i> العودة للمقالات
+                </button>
+            </div>
+
+            <div class="admin-photo-uploader-box" id="adminPhotoUploaderBox">
+                <div style="color: var(--text-muted); font-size: 0.92rem;">
+                    <i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i>
+                    <span>وضع الأدمن: يمكنك رفع صورة أو أكثر من جهازك لهذه الصفحة.</span>
+                </div>
+                <div>
+                    <input type="file" id="subpagePhotoUploadInput" accept="image/*" multiple style="display: none;" onchange="handleSubpagePhotosUpload(event)">
+                    <button type="button" class="admin-control-btn authorized" onclick="document.getElementById('subpagePhotoUploadInput').click()">
+                        <i class="fa-solid fa-upload"></i>
+                        <span>رفع صور من الجهاز</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="photos-gallery-grid" id="subpagePhotosGallery"></div>
         </div>
 
         <div id="profileView" class="profile-view">
@@ -598,6 +1221,30 @@
             </div>
         </div>
     </footer>
+
+    <!-- معاينة الصورة بالحجم الكامل -->
+    <div id="photoLightboxModal" class="modal-overlay" onclick="if(event.target === this) closePhotoLightbox()">
+        <div class="modal-box" style="max-width: 720px; padding: 18px;">
+            <img id="lightboxImgSrc" src="" alt="" style="width: 100%; max-height: 72vh; object-fit: contain; border-radius: 12px; display: block;">
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closePhotoLightbox()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل اسم الصفحة الفرعية للأدمن -->
+    <div id="renameSubpageModal" class="modal-overlay" onclick="if(event.target === this) closeRenameSubpageModal()">
+        <div class="modal-box">
+            <div class="modal-icon"><i class="fa-solid fa-tag"></i></div>
+            <h3>تعديل اسم الصفحة</h3>
+            <p>اكتب الاسم الجديد للصفحة المحددة داخل قسم المقالات</p>
+            <input type="text" id="renameSubpageInput" class="modal-input" placeholder="مثال: أساسيات الذكاء الاصطناعي" onkeyup="if(event.key === 'Enter') saveSubpageName()">
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-confirm" onclick="saveSubpageName()">حفظ الاسم</button>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeRenameSubpageModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
 
     <div id="adminModal" class="modal-overlay" onclick="if(event.target === this) closeAdminModal()">
         <div class="modal-box" id="loginModalContent">
@@ -773,6 +1420,419 @@
         }
         applySiteTheme();
 
+        // بيانات الصفحات الـ 5 داخل قسم المقالات (تدعم نصوص طويلة تتجاوز 5000 كلمة + صور لكل صفحة)
+        const defaultArticlePages = [
+            { id: 1, name: "الصفحة الأولى", title: "مقال الصفحة الأولى", content: "ابدأ بكتابة مقالك الطويل هنا (يدعم أكثر من 5,000 كلمة)...", updatedAt: "", photos: [] },
+            { id: 2, name: "الصفحة الثانية", title: "مقال الصفحة الثانية", content: "ابدأ بكتابة مقالك الطويل هنا (يدعم أكثر من 5,000 كلمة)...", updatedAt: "", photos: [] },
+            { id: 3, name: "الصفحة الثالثة", title: "مقال الصفحة الثالثة", content: "ابدأ بكتابة مقالك الطويل هنا (يدعم أكثر من 5,000 كلمة)...", updatedAt: "", photos: [] },
+            { id: 4, name: "الصفحة الرابعة", title: "مقال الصفحة الرابعة", content: "ابدأ بكتابة مقالك الطويل هنا (يدعم أكثر من 5,000 كلمة)...", updatedAt: "", photos: [] },
+            { id: 5, name: "الصفحة الخامسة", title: "مقال الصفحة الخامسة", content: "ابدأ بكتابة مقالك الطويل هنا (يدعم أكثر من 5,000 كلمة)...", updatedAt: "", photos: [] }
+        ];
+
+        let articlePagesData = JSON.parse(localStorage.getItem('codecraft_article_pages_5')) || JSON.parse(JSON.stringify(defaultArticlePages));
+        if (!Array.isArray(articlePagesData) || articlePagesData.length !== 5) {
+            articlePagesData = JSON.parse(JSON.stringify(defaultArticlePages));
+        }
+        articlePagesData = articlePagesData.map((p, i) => ({
+            id: p.id || (i + 1),
+            name: p.name || `صفحة ${i + 1}`,
+            title: p.title || `مقال صفحة ${i + 1}`,
+            content: typeof p.content === 'string' ? p.content : "",
+            updatedAt: p.updatedAt || "",
+            photos: Array.isArray(p.photos) ? p.photos : []
+        }));
+
+        let activeSubpageId = 1;
+        let isFocusReadingMode = false;
+
+        function getFormattedTimestamp() {
+            const now = new Date();
+            return now.toLocaleString('ar-EG', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function countWordsAndChars(text) {
+            const clean = (text || '').trim();
+            const words = clean ? clean.split(/\s+/).length : 0;
+            const chars = (text || '').length;
+            const readMinutes = words > 0 ? Math.max(1, Math.ceil(words / 200)) : 0;
+            return { words, chars, readMinutes };
+        }
+
+        function updateLiveWordCount() {
+            const textVal = document.getElementById('longArticleTextarea').value;
+            const stats = countWordsAndChars(textVal);
+            document.getElementById('wordCountText').innerText = `${stats.words.toLocaleString()} كلمة`;
+            document.getElementById('charCountText').innerText = `${stats.chars.toLocaleString()} حرف`;
+            document.getElementById('readTimeText').innerText = `${stats.readMinutes.toLocaleString()} دقيقة قراءة`;
+        }
+
+        function renderArticleBodyAndToc(content) {
+            const bodyEl = document.getElementById('displayLongArticleContent');
+            const tocBox = document.getElementById('articleTocBox');
+            const tocList = document.getElementById('articleTocList');
+
+            const rawText = content || '';
+            const paragraphs = rawText.split(/\n+/).map(p => p.trim()).filter(Boolean);
+
+            bodyEl.innerHTML = '';
+            tocList.innerHTML = '';
+
+            if (paragraphs.length === 0) {
+                bodyEl.textContent = '';
+                tocBox.style.display = 'none';
+                return;
+            }
+
+            const tocItems = [];
+            paragraphs.forEach((para, idx) => {
+                const pEl = document.createElement('div');
+                pEl.className = 'article-paragraph-anchor';
+                pEl.id = `article-para-${idx}`;
+                pEl.textContent = para;
+                if (idx < paragraphs.length - 1) {
+                    pEl.style.marginBottom = '14px';
+                }
+                bodyEl.appendChild(pEl);
+
+                const isHeadingLike = para.startsWith('#') || (para.length <= 75 && idx > 0 && !para.endsWith('.') && !para.endsWith('؟'));
+                if (isHeadingLike || (paragraphs.length >= 6 && idx % Math.ceil(paragraphs.length / 5) === 0)) {
+                    const cleanLabel = para.replace(/^#+\s*/, '').slice(0, 42);
+                    tocItems.push({ id: pEl.id, label: cleanLabel || `قسم ${idx + 1}` });
+                }
+            });
+
+            if (tocItems.length > 1) {
+                tocItems.forEach(item => {
+                    const chip = document.createElement('button');
+                    chip.type = 'button';
+                    chip.className = 'toc-chip';
+                    chip.innerText = item.label;
+                    chip.onclick = () => {
+                        const target = document.getElementById(item.id);
+                        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    };
+                    tocList.appendChild(chip);
+                });
+                tocBox.style.display = 'block';
+            } else {
+                tocBox.style.display = 'none';
+            }
+        }
+
+        function updateReadingProgress() {
+            const bodyEl = document.getElementById('displayLongArticleContent');
+            const barEl = document.getElementById('readingProgressBar');
+            const labelEl = document.getElementById('readingPercentLabel');
+            if (!bodyEl || !barEl || !labelEl) return;
+
+            const maxScroll = bodyEl.scrollHeight - bodyEl.clientHeight;
+            let pct = 0;
+            if (maxScroll <= 0) {
+                pct = bodyEl.textContent.trim().length > 0 ? 100 : 0;
+            } else {
+                pct = Math.min(100, Math.max(0, Math.round((bodyEl.scrollTop / maxScroll) * 100)));
+            }
+            barEl.style.width = `${pct}%`;
+            labelEl.innerText = `نسبة القراءة: ${pct}%`;
+        }
+
+        function toggleFocusReadingMode() {
+            isFocusReadingMode = !isFocusReadingMode;
+            document.body.classList.toggle('focus-reading-mode', isFocusReadingMode);
+            const btn = document.getElementById('focusModeBtn');
+            btn.classList.toggle('active', isFocusReadingMode);
+            btn.innerHTML = isFocusReadingMode
+                ? `<i class="fa-solid fa-eye-slash"></i><span>إنهاء وضع القراءة</span>`
+                : `<i class="fa-solid fa-eye"></i><span>وضع قراءة مريح</span>`;
+            showToast(isFocusReadingMode ? "تم تفعيل وضع القراءة المريح" : "تم العودة للعرض العادي");
+        }
+
+        function copyCurrentArticle() {
+            const page = articlePagesData.find(p => p.id === activeSubpageId);
+            if (!page) return;
+            const fullText = `${page.title || page.name}\n\n${page.content || ''}`;
+            navigator.clipboard.writeText(fullText).then(() => {
+                showToast("تم نسخ المقال بالكامل!");
+            }).catch(() => {
+                showToast("تعذر النسخ التلقائي على هذا المتصفح");
+            });
+        }
+
+        function exportCurrentArticleTxt() {
+            const page = articlePagesData.find(p => p.id === activeSubpageId);
+            if (!page) return;
+            const titleText = page.title || page.name || `صفحة ${page.id}`;
+            const blob = new Blob([`${titleText}\n${'='.repeat(30)}\n\n${page.content || ''}`], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${titleText.replace(/[\\/:*?"<>|]/g, '_')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("تم تصدير المقال كملف TXT");
+        }
+
+        function searchAcrossArticlePages() {
+            const query = document.getElementById('articlesSearchInput').value.trim().toLowerCase();
+            const resultsBox = document.getElementById('articleSearchResults');
+            if (!query) {
+                resultsBox.classList.remove('visible');
+                resultsBox.innerHTML = '';
+                return;
+            }
+
+            const matches = [];
+            articlePagesData.forEach(page => {
+                const pageName = (page.name || '').toLowerCase();
+                const title = (page.title || '').toLowerCase();
+                const content = (page.content || '').toLowerCase();
+                const idx = content.indexOf(query);
+                if (pageName.includes(query) || title.includes(query) || idx !== -1) {
+                    let snippet = page.title || page.name;
+                    if (idx !== -1) {
+                        const start = Math.max(0, idx - 45);
+                        const end = Math.min((page.content || '').length, idx + query.length + 65);
+                        snippet = `...${(page.content || '').slice(start, end)}...`;
+                    }
+                    matches.push({ pageId: page.id, pageName: page.name, snippet });
+                }
+            });
+
+            resultsBox.classList.add('visible');
+            if (matches.length === 0) {
+                resultsBox.innerHTML = `<div style="color: var(--text-muted); font-size: 0.9rem;">لا توجد نتائج مطابقة لكلمة "${query}".</div>`;
+                return;
+            }
+
+            resultsBox.innerHTML = matches.map(m => `
+                <div class="search-result-item" onclick="selectArticleSubpage(${m.pageId})">
+                    <div style="color: var(--primary); font-weight: 800; font-size: 0.9rem; margin-bottom: 4px;">
+                        <i class="fa-solid fa-file-lines"></i> ${m.pageName}
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.88rem;">${m.snippet}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderSubpagesTabs() {
+            const tabsContainer = document.getElementById('subpagesTabs');
+            tabsContainer.innerHTML = '';
+            articlePagesData.forEach((page, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `subpage-tab-btn ${page.id === activeSubpageId ? 'active' : ''}`;
+                btn.innerHTML = `<i class="fa-solid fa-file-lines"></i><span>${page.name || `صفحة ${idx + 1}`}</span>`;
+                btn.onclick = () => selectArticleSubpage(page.id);
+                tabsContainer.appendChild(btn);
+            });
+        }
+
+        function selectArticleSubpage(pageId) {
+            activeSubpageId = pageId;
+            const idx = articlePagesData.findIndex(p => p.id === pageId);
+            const page = articlePagesData[idx] || articlePagesData[0];
+
+            renderSubpagesTabs();
+
+            document.getElementById('activeSubpageTabTitle').innerText = page.name;
+            document.getElementById('activeSubpageIndexLabel').innerText = `(${idx + 1} من 5)`;
+            document.getElementById('displayLongArticleTitle').innerText = page.title || page.name;
+            document.getElementById('displayLastUpdated').innerHTML = `
+                <i class="fa-regular fa-calendar-check"></i>
+                <span>${page.updatedAt ? `آخر تحديث: ${page.updatedAt}` : 'آخر تحديث: لم يتم التعديل بعد'}</span>
+            `;
+
+            renderArticleBodyAndToc(page.content || '');
+
+            document.getElementById('longArticleTitleInput').value = page.title || '';
+            document.getElementById('longArticleTextarea').value = page.content || '';
+
+            const stats = countWordsAndChars(page.content || '');
+            document.getElementById('wordCountText').innerText = `${stats.words.toLocaleString()} كلمة`;
+            document.getElementById('charCountText').innerText = `${stats.chars.toLocaleString()} حرف`;
+            document.getElementById('readTimeText').innerText = `${stats.readMinutes.toLocaleString()} دقيقة قراءة`;
+
+            const bodyEl = document.getElementById('displayLongArticleContent');
+            if (bodyEl) bodyEl.scrollTop = 0;
+            updateReadingProgress();
+        }
+
+        function openArticlesPage() {
+            document.getElementById('homeView').style.display = 'none';
+            document.getElementById('profileView').style.display = 'none';
+            document.getElementById('subpagePhotosView').style.display = 'none';
+            document.getElementById('articlesPageView').style.display = 'block';
+            document.getElementById('readingProgressWrap').style.display = 'block';
+            document.getElementById('articlesNavBtn').classList.add('active');
+            currentMemberId = null;
+            selectArticleSubpage(activeSubpageId);
+            updateAdminUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openSubpagePhotosPage() {
+            const page = articlePagesData.find(p => p.id === activeSubpageId) || articlePagesData[0];
+            document.getElementById('articlesPageView').style.display = 'none';
+            document.getElementById('readingProgressWrap').style.display = 'none';
+            document.getElementById('photosPageSubpageName').innerText = page.name;
+            document.getElementById('subpagePhotosView').style.display = 'block';
+            renderSubpagePhotosGallery();
+            updateAdminUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function backToArticlesFromPhotos() {
+            document.getElementById('subpagePhotosView').style.display = 'none';
+            openArticlesPage();
+        }
+
+        function renderSubpagePhotosGallery() {
+            const page = articlePagesData.find(p => p.id === activeSubpageId) || articlePagesData[0];
+            const gallery = document.getElementById('subpagePhotosGallery');
+            const photos = Array.isArray(page.photos) ? page.photos : [];
+
+            if (photos.length === 0) {
+                gallery.innerHTML = `
+                    <div class="empty-photos-state">
+                        <i class="fa-regular fa-image" style="font-size: 2.2rem; opacity: 0.65;"></i>
+                        <span>صفحة صور فارغة حالياً</span>
+                    </div>
+                `;
+                return;
+            }
+
+            gallery.innerHTML = photos.map((src, idx) => `
+                <div class="photo-card-item">
+                    <img src="${src}" alt="" onclick="openPhotoLightbox('${src.replace(/'/g, "\\'")}')">
+                    <button type="button" class="photo-delete-btn ${isAdminLoggedIn ? 'authorized' : ''}" title="حذف الصورة" onclick="deleteSubpagePhoto(${idx})">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function handleSubpagePhotosUpload(event) {
+            if (!isAdminLoggedIn) {
+                showToast("هذه الميزة متاحة للأدمن فقط!");
+                return;
+            }
+            const files = Array.from(event.target.files || []);
+            if (files.length === 0) return;
+
+            const page = articlePagesData.find(p => p.id === activeSubpageId);
+            if (!page) return;
+            if (!Array.isArray(page.photos)) page.photos = [];
+
+            const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+
+            try {
+                const loadedImages = await Promise.all(files.map(readFileAsDataUrl));
+                page.photos.push(...loadedImages);
+                page.updatedAt = getFormattedTimestamp();
+                localStorage.setItem('codecraft_article_pages_5', JSON.stringify(articlePagesData));
+                renderSubpagePhotosGallery();
+                event.target.value = '';
+                showToast("تم رفع الصور وجاري المزامنة...");
+                await saveArticleToSupabase(`ARTICLE_SUBPAGE_5 | ${page.id}`, JSON.stringify(page));
+            } catch (err) {
+                showToast("حدث خطأ أثناء قراءة الصورة من الجهاز.");
+            }
+        }
+
+        async function deleteSubpagePhoto(photoIndex) {
+            if (!isAdminLoggedIn) {
+                showToast("هذه الميزة متاحة للأدمن فقط!");
+                return;
+            }
+            const page = articlePagesData.find(p => p.id === activeSubpageId);
+            if (!page || !Array.isArray(page.photos)) return;
+            if (!confirm("هل تريد حذف هذه الصورة؟")) return;
+
+            page.photos.splice(photoIndex, 1);
+            page.updatedAt = getFormattedTimestamp();
+            localStorage.setItem('codecraft_article_pages_5', JSON.stringify(articlePagesData));
+            renderSubpagePhotosGallery();
+            showToast("تم حذف الصورة وجاري المزامنة...");
+            await saveArticleToSupabase(`ARTICLE_SUBPAGE_5 | ${page.id}`, JSON.stringify(page));
+        }
+
+        function openPhotoLightbox(src) {
+            document.getElementById('lightboxImgSrc').src = src;
+            document.getElementById('photoLightboxModal').style.display = 'flex';
+        }
+
+        function closePhotoLightbox() {
+            document.getElementById('photoLightboxModal').style.display = 'none';
+        }
+
+        function openRenameSubpageModal() {
+            if (!isAdminLoggedIn) {
+                showToast("هذه الميزة متاحة للأدمن فقط!");
+                return;
+            }
+            const page = articlePagesData.find(p => p.id === activeSubpageId);
+            document.getElementById('renameSubpageInput').value = page ? page.name : '';
+            document.getElementById('renameSubpageModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('renameSubpageInput').focus(), 100);
+        }
+
+        function closeRenameSubpageModal() {
+            document.getElementById('renameSubpageModal').style.display = 'none';
+        }
+
+        async function saveSubpageName() {
+            if (!isAdminLoggedIn) return;
+            const newName = document.getElementById('renameSubpageInput').value.trim();
+            if (!newName) {
+                showToast("اكتب اسماً صحيحاً للصفحة!");
+                return;
+            }
+            const page = articlePagesData.find(p => p.id === activeSubpageId);
+            if (!page) return;
+
+            page.name = newName;
+            page.updatedAt = getFormattedTimestamp();
+            localStorage.setItem('codecraft_article_pages_5', JSON.stringify(articlePagesData));
+            selectArticleSubpage(activeSubpageId);
+            closeRenameSubpageModal();
+            showToast("تم تعديل اسم الصفحة وجاري المزامنة...");
+            await saveArticleToSupabase(`ARTICLE_SUBPAGE_5 | ${page.id}`, JSON.stringify(page));
+        }
+
+        async function saveLongSubpageArticle() {
+            if (!isAdminLoggedIn) {
+                showToast("هذه الميزة متاحة للأدمن فقط!");
+                return;
+            }
+            const page = articlePagesData.find(p => p.id === activeSubpageId);
+            if (!page) return;
+
+            const newTitle = document.getElementById('longArticleTitleInput').value.trim() || page.name;
+            const newContent = document.getElementById('longArticleTextarea').value;
+
+            page.title = newTitle;
+            page.content = newContent;
+            page.updatedAt = getFormattedTimestamp();
+
+            localStorage.setItem('codecraft_article_pages_5', JSON.stringify(articlePagesData));
+            selectArticleSubpage(activeSubpageId);
+            showToast("تم حفظ المقال الطويل وجاري المزامنة مع السحابة...");
+            await saveArticleToSupabase(`ARTICLE_SUBPAGE_5 | ${page.id}`, JSON.stringify(page));
+        }
+
         const permanentTeamData = [
             {
                 id: 1, name: "محمد شعبان", role: "مطور برمجيات شامل (Full-Stack)",
@@ -943,11 +2003,14 @@
             `;
 
             document.getElementById('homeView').style.display = 'none';
+            document.getElementById('articlesPageView').style.display = 'none';
+            document.getElementById('subpagePhotosView').style.display = 'none';
+            document.getElementById('readingProgressWrap').style.display = 'none';
+            document.getElementById('articlesNavBtn').classList.remove('active');
             document.getElementById('profileView').style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // تغيير لون البروفايل الفردي + رفعه للسحابة فوراً
         async function setProfileTheme(color) {
             const member = teamData.find(m => m.id === currentMemberId);
             if (!member) return;
@@ -959,7 +2022,14 @@
         }
 
         function goHome() {
+            if (isFocusReadingMode) {
+                toggleFocusReadingMode();
+            }
             document.getElementById('profileView').style.display = 'none';
+            document.getElementById('articlesPageView').style.display = 'none';
+            document.getElementById('subpagePhotosView').style.display = 'none';
+            document.getElementById('readingProgressWrap').style.display = 'none';
+            document.getElementById('articlesNavBtn').classList.remove('active');
             document.getElementById('homeView').style.display = 'block';
             currentMemberId = null;
         }
@@ -977,6 +2047,9 @@
             const resetSiteBtn = document.getElementById('resetSiteBtn');
             const themeSettingsBtn = document.getElementById('themeSettingsBtn');
             const changePassBtn = document.getElementById('changePassBtn');
+            const renameSubpageBtn = document.getElementById('renameSubpageBtn');
+            const longArticleEditorBox = document.getElementById('longArticleEditorBox');
+            const adminPhotoUploaderBox = document.getElementById('adminPhotoUploaderBox');
             const footer = document.getElementById('siteFooter');
 
             if (isAdminLoggedIn) {
@@ -993,6 +2066,9 @@
                 if (resetSiteBtn) resetSiteBtn.classList.add('authorized');
                 if (themeSettingsBtn) themeSettingsBtn.classList.add('authorized');
                 if (changePassBtn) changePassBtn.classList.add('authorized');
+                if (renameSubpageBtn) renameSubpageBtn.classList.add('authorized');
+                if (longArticleEditorBox) longArticleEditorBox.classList.add('authorized');
+                if (adminPhotoUploaderBox) adminPhotoUploaderBox.classList.add('authorized');
             } else {
                 btn.className = "admin-login-trigger";
                 icon.className = "fa-solid fa-lock";
@@ -1007,6 +2083,13 @@
                 if (resetSiteBtn) resetSiteBtn.classList.remove('authorized');
                 if (themeSettingsBtn) themeSettingsBtn.classList.remove('authorized');
                 if (changePassBtn) changePassBtn.classList.remove('authorized');
+                if (renameSubpageBtn) renameSubpageBtn.classList.remove('authorized');
+                if (longArticleEditorBox) longArticleEditorBox.classList.remove('authorized');
+                if (adminPhotoUploaderBox) adminPhotoUploaderBox.classList.remove('authorized');
+            }
+
+            if (document.getElementById('subpagePhotosView').style.display === 'block') {
+                renderSubpagePhotosGallery();
             }
         }
 
@@ -1081,7 +2164,6 @@
         }
         function closeThemeModal() { document.getElementById('themeModal').style.display = 'none'; }
 
-        // حفظ الثيم والخلفية العامة + رفعها للسحابة للجميع
         function saveThemeSettings() {
             const primary = document.getElementById('primaryColorPicker').value;
             const fileInput = document.getElementById('bgImageFileInput');
@@ -1181,7 +2263,6 @@
             }
         }
 
-        // رفع الصورة الشخصية + مزامنتها مع السحابة
         function handleImageUpload(e) {
             const file = e.target.files[0];
             if (!file || !currentMemberId) return;
@@ -1234,6 +2315,7 @@
         window.onload = function() {
             updateAdminUI();
             renderTeamCarousel();
+            renderSubpagesTabs();
             updateSupportUI();
             renderCustomButtons();
             startAutoSpin();
@@ -1249,7 +2331,6 @@
         window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log("1. تم الاتصال بـ Supabase بنجاح!");
 
-        // دالة مساعدة لرفع الصورة واللون والمسمى الوظيفي لكل عضو
         async function syncProfileMetaToSupabase(member) {
             const metaPayload = JSON.stringify({
                 img: member.img,
@@ -1259,7 +2340,6 @@
             await saveArticleToSupabase(`PROFILE_META | ${member.name}`, metaPayload);
         }
 
-        // دالة حفظ أي بيانات في جدول projects بالسحابة
         async function saveArticleToSupabase(titleText, contentText) {
             const { data, error } = await window.supabaseClient
                 .from('projects')
@@ -1275,7 +2355,6 @@
             }
         }
 
-        // دالة جلب جميع البيانات (المقالات + الصور + الألوان + الثيم العام)
         async function loadArticlesFromSupabase() {
             console.log("2. جاري جلب البيانات من السحابة...");
             const { data, error } = await window.supabaseClient
@@ -1292,7 +2371,6 @@
                 data.forEach(row => {
                     if (!row.title) return;
 
-                    // 1. استرجاع الثيم العام والخلفية
                     if (row.title === 'SITE_THEME') {
                         try {
                             const parsedTheme = JSON.parse(row.content);
@@ -1301,7 +2379,22 @@
                             applySiteTheme();
                         } catch (e) {}
                     }
-                    // 2. استرجاع الصورة الشخصية ولون البروفايل والمسمى الوظيفي
+                    else if (row.title.startsWith('ARTICLE_SUBPAGE_5 | ')) {
+                        try {
+                            const parsedPage = JSON.parse(row.content);
+                            const idx = articlePagesData.findIndex(p => p.id === Number(parsedPage.id));
+                            if (idx !== -1) {
+                                articlePagesData[idx] = {
+                                    ...articlePagesData[idx],
+                                    name: parsedPage.name || articlePagesData[idx].name,
+                                    title: parsedPage.title || articlePagesData[idx].title,
+                                    content: typeof parsedPage.content === 'string' ? parsedPage.content : articlePagesData[idx].content,
+                                    updatedAt: parsedPage.updatedAt || articlePagesData[idx].updatedAt || "",
+                                    photos: Array.isArray(parsedPage.photos) ? parsedPage.photos : (articlePagesData[idx].photos || [])
+                                };
+                            }
+                        } catch (e) {}
+                    }
                     else if (row.title.startsWith('PROFILE_META | ')) {
                         const memberName = row.title.replace('PROFILE_META | ', '').trim();
                         const member = teamData.find(m => m.name.trim() === memberName);
@@ -1314,7 +2407,6 @@
                             } catch (e) {}
                         }
                     }
-                    // 3. استرجاع المقالات البرمجية
                     else if (row.title.includes('|')) {
                         const parts = row.title.split('|');
                         const memberName = parts[0].trim();
@@ -1329,9 +2421,17 @@
                 });
 
                 localStorage.setItem('codecraft_team_data', JSON.stringify(teamData));
+                localStorage.setItem('codecraft_article_pages_5', JSON.stringify(articlePagesData));
                 renderTeamCarousel();
+                renderSubpagesTabs();
+                if (document.getElementById('articlesPageView').style.display === 'block') {
+                    selectArticleSubpage(activeSubpageId);
+                }
+                if (document.getElementById('subpagePhotosView').style.display === 'block') {
+                    renderSubpagePhotosGallery();
+                }
                 if (currentMemberId) showProfile(currentMemberId);
-                console.log('✅ تم تحديث كافة الصور والألوان والثيم والمقالات من السحابة!');
+                console.log('✅ تم تحديث كافة الصور والألوان والثيم والمقالات والصفحات الـ 5 من السحابة!');
             }
         }
     </script>
